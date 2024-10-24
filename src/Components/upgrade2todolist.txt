@@ -1,0 +1,89 @@
+//File con errores, descartado debido a la imposibilidad de usar firebase
+
+import React, { useEffect, useState } from 'react';
+import { useAuth } from './AuthContext';
+import { useNavigate } from 'react-router-dom';
+
+const TodoList = () => {
+  const { user, notes, getNotes, deleteNote, logout, setNotes } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(null);
+
+  useEffect(() => {
+    const fetchNotes = async () => {
+      try {
+        const fakeUser = { email: "fakeuser@test.com" }; // Simula un usuario temporal para pruebas
+        if (user || fakeUser) {
+          const userEmail = (user || fakeUser).email;
+          await getNotes(userEmail);
+        } else if (notes.length > 0) {
+          setNotes([]);
+        }
+      } catch (error) {
+        setErrorMessage("Error al obtener las notas. Intente nuevamente.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNotes();
+  }, [user, getNotes, setNotes]);
+
+  const handleEdit = (note) => {
+    navigate('/form', { state: { note } });
+  };
+
+  const handleAddNote = () => {
+    navigate('/form');
+  };
+
+  const handleDeleteNote = async (id) => {
+    if (window.confirm("¿Estás seguro de que quieres eliminar esta nota?")) {
+      try {
+        await deleteNote(id);
+        // Opcional: Puedes agregar un mensaje de éxito aquí
+      } catch (error) {
+        setErrorMessage("Error al eliminar la nota. Intente nuevamente.");
+      }
+    }
+  };
+
+  return (
+    <main className="responsive">
+      <div className='responsive'>
+        <h2>Lista de Notas</h2>
+        {errorMessage && <p className="error">{errorMessage}</p>} 
+        {loading ? (
+          <p>Cargando notas...</p> // Estado de carga
+        ) : (
+          <>
+            <button onClick={handleAddNote}>Agregar Nueva Nota</button>
+            <button onClick={logout}>Cerrar sesión</button>
+            <div className="grid small-space">
+              <div className="s10">
+                {notes.length === 0 ? (
+                  <p>No tienes notas aún</p>
+                ) : (
+                  notes.map((note) => (
+                    <article className="border round" key={note.id}>
+                      <p>{note.nota}</p>
+                      <nav>
+                        <button onClick={() => handleEdit(note)} aria-label={`Editar nota: ${note.nota}`}><i>edit</i></button>
+                        <button onClick={() => handleDeleteNote(note.id)} aria-label={`Eliminar nota: ${note.nota}`}><i>delete</i></button>
+                        <p>Estado: {note.completa ? '✅' : '❌'}</p>
+                        <p>Importancia: {note.prioridad}</p>
+                      </nav>
+                    </article>
+                  ))
+                )}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </main>
+  );
+};
+
+export default TodoList;

@@ -1,18 +1,57 @@
 import React from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { AuthProvider } from './Components/AuthContext'; 
+import TodoForm from './Components/TodoForm';
+import TodoList from './Components/TodoList';
+import Login from './Components/UserAccess/Login';
+import Register from './Components/UserAccess/Register';
+import { useAuth } from './Components/AuthContext';
 
-import { AuthProvider } from './Components/AuthContext'; //contexto
-// import TodoForm from './components/TodoForm'; 
-// import TodoList from './components/TodoList'; 
+// mini compnente para navegacion solo si esta logueado
+const PrivateRoute = ({ children }) => {
+  const { user } = useAuth(); // Usa el contexto de autenticación para verificar el usuario
+  return user ? children : <Navigate to="/login" />;
+};
 
 const App = () => {
   return (
-    <AuthProvider>
-      <div>
-        <TodoForm />  {/* Manejo de autenticación */}
-        <TodoList />  {/* Mostrar notas o mensaje si no hay */}
-      </div>
-    </AuthProvider>
+    <Router> 
+      <AuthProvider>
+        <Routes>
+          {/* Ruta para el login */}
+          <Route path="/login" element={<Login />} />
+
+          {/* Ruta para el registro */}
+          <Route path="/register" element={<Register />} />
+
+          {/* Rutas privadas protegidas no aptas para libre navegacion, pero ahorita no jalan */}
+          <Route
+            path="/todos"
+            element={
+              // <PrivateRoute>
+                <TodoList />
+              /* </PrivateRoute> */
+            }
+          />
+
+          <Route
+            path="/form"
+            element={
+              // <PrivateRoute>
+                <TodoForm />
+              /* </PrivateRoute> */
+            }
+          />
+
+
+          {/* Redirecciona cualquier ruta no definida al login */}
+          <Route path="*" element={<Navigate to="/login" />} />
+        </Routes>
+      </AuthProvider>
+    </Router>
   );
 };
 
 export default App;
+// Se comento la parte de <PrivateRoute> debido a los errores dados en firebase
+// esperando la v2 para descomentarlos
