@@ -42,9 +42,20 @@ const TodoList = () => {
       <button onClick={logout}>Cerrar sesión</button>
       <div className="grid small-space">
         <div className="s10">
+        <article className="border round">
+                <h5>Dummy note por que no hay moni pa firebase</h5>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel, qui cum corporis enim ab aperia</p>
+                <nav>
+                  <button ><i>edit</i></button>
+                  <button ><i>delete</i></button>
+                  <p>Estado : ❌</p>
+                  <p>Importancia: Alta</p>
+                </nav>
+              </article>
           {notes.length === 0 ? (
             <p>No tienes notas aun</p>
           ) : (
+            
             notes.map((note) => (
               <article className="border round" key={note.id}>
                 {/* <h5>Title</h5> */}
